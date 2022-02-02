@@ -6,26 +6,25 @@
     position: relative;
     overflow: hidden;
     border: 1px solid black;
-    background-color: #808080;
+    background-color: #ffffff;
 }
 
 .score, .lives {
-     font-size: 3em;
+    font-size: 3em;
 }
 
 .brick {
     position: absolute;
     top: 0;
     left: 0;
-    width: 90px;
-    height: 40px;
-    padding: 1px;
+    width: 95px;
+    height: 45px;
+    padding: 0;
     color: #ffffff;
-    border: 1px solid;
-    font-size: 1.8em;
-    text-align: center;
+    border: 1px solid black;
     line-height: 40px;
 }
+
 .gameover {
     position: absolute;
     color: #ffffff;
@@ -41,10 +40,8 @@
     position: absolute;
     width: 20px;
     height: 20px;
-    /*background: #000000;*/
     border-radius: 50%;
     background-size: 20px 20px;
-    /*background: radial-gradient(circle at 50% 120%, #323232, #0a0a0a 80%, #000000 100%);*/
     background-image: url('./images/ball5.png');
     top: 70%;
     left: 50%;
@@ -53,10 +50,10 @@
 
 .paddle {
     position: absolute;
-    background-color: #ffffff;
+    background-color: #000000;
     height: 20px;
     width: 100px;
     border-radius: 25px;
-    bottom: 30px;
+    bottom: 2px;
     left: 50%;
 }
