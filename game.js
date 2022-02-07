@@ -1,6 +1,9 @@
 let paddle;
-let gameOver;
+let pauseButton;
+let startButton;
+let resumeButton;
 let ball;
+let livesContainer;
 let conDimensions;
 let container;
 const player = {
@@ -19,50 +22,87 @@ export const loadPage = () => {
     container = document.querySelector('.container');
     conDimensions = container.getBoundingClientRect();
 
-    gameOver = document.createElement('div');
-    gameOver.classList.add("gameover");
-    gameOver.textContent = "Start Game";
-    gameOver.addEventListener('click', startGame);
-    container.appendChild(gameOver);
+    startButton = document.querySelector('.start');
+    startButton.addEventListener('click', ()=> {
+        player.gameover = true;
+        player.onPause = false;
+        player.inPlay = false;
+
+        container = document.querySelector('.container');
+        conDimensions = container.getBoundingClientRect();
+
+        pauseMenu(false);
+        let bricks = document.querySelectorAll('.brick');
+        for (const brick of bricks) {
+            brick.parentNode.removeChild(brick);
+        }
+        startGame();
+    });
+    pauseButton = document.querySelector('.pause');
+    resumeButton = document.querySelector('.resume');
+
+    livesContainer = document.getElementById('livesContainer');
+    for (let i = 1; i <= 3; i ++) {
+        let live = document.createElement('div');
+        live.classList.add('lives');
+        livesContainer.appendChild(live);
+    }
 
     ball = document.createElement('div');
-    ball.classList.add("ball");
+    ball.classList.add('ball');
     container.appendChild(ball);
 
     paddle = document.createElement('div');
-    paddle.classList.add("paddle");
+    paddle.classList.add('paddle');
     container.appendChild(paddle);
+
+    document.addEventListener('keydown', function (e) {
+        if (e.code === 'ArrowRight' && !player.onPause) paddle.right = true;
+        if (e.code === 'ArrowLeft' && !player.onPause) paddle.left = true;
+        if (e.code === 'Space' && !player.inPlay) {
+            console.log("inPl1");
+            player.inPlay = true;
+        } else if (e.code === 'Space' && player.inPlay) {
+            console.log("inPl2");
+            player.onPause = !player.onPause;
+            if (player.onPause) {
+                pauseTimer();
+                pauseMenu(true);
+            }
+            if (!player.onPause) {
+                pauseMenu(false);
+                resumeTimer();
+            }
+        }
+    })
+    document.addEventListener('keyup', function (e) {
+        if (e.code === 'ArrowRight') paddle.right = false;
+        if (e.code === 'ArrowLeft') paddle.left = false;
+    })
+    resumeButton.addEventListener('click', () => {
+        player.onPause = false;
+        pauseMenu(false);
+        resumeTimer();
+    });
 }
 
 function startGame() {
     if (player.gameover) {
         player.gameover = false;
-        gameOver.style.display = "none";
+        startButton.style.display = "none";
         ball.style.display = "block";
         ball.style.left = paddle.offsetLeft + 50 + 'px';
-        ball.style.top = paddle.offsetTop + 'px'; //-30?
+        ball.style.top = paddle.offsetTop - 30 + 'px';
+        paddle.style.display = "block";
         player.ballDir = [0, -5];
-        player.bricks = Math.floor(conDimensions.width / 100) * 3;
+        player.bricks = Math.floor(conDimensions.width / 60) * 3;
         player.lives = 3;
         player.level = 3;
         player.score = 0;
         player.onPause = false;
         setUpBricks(player.bricks);
         scoreUpdater();
-        document.addEventListener('keydown', function (e) {
-            if (e.code === 'ArrowRight' && !player.onPause) paddle.right = true;
-            if (e.code === 'ArrowLeft' && !player.onPause) paddle.left = true;
-            if (e.code === 'Space' && !player.inPlay) {
-                player.inPlay = true;
-            } else if (e.code === 'Space' && player.inPlay) {
-                player.onPause = !player.onPause;
-            }
-        })
-        document.addEventListener('keyup', function (e) {
-            if (e.code === 'ArrowRight') paddle.right = false;
-            if (e.code === 'ArrowLeft') paddle.left = false;
-
-        })
+        startTimer(0, 0);
         console.log('start');
         if (player.animation == null) player.animation = window.requestAnimationFrame(update);
     }
@@ -81,11 +121,12 @@ function step(timestamp) {
 
 function update() {
     let pCurrent = paddle.offsetLeft;
+    let speed = conDimensions.width / 100;
     if (paddle.left && pCurrent > 0) {
-        pCurrent -= 7;
+        pCurrent -= speed;
     }
     if (paddle.right && pCurrent < conDimensions.width - paddle.offsetWidth) {
-        pCurrent += 7;
+        pCurrent += speed;
     }
     paddle.style.left = pCurrent + 'px';
     if (!player.inPlay) {
@@ -96,52 +137,92 @@ function update() {
     player.animation = window.requestAnimationFrame(update);
 }
 
+const timer = document.querySelector('.time');
+let timeInterval;
+
+function startTimer(minute, second) {
+    clearInterval(timeInterval);
+    timer.textContent =
+        (minute < 10 ? '0' + minute : minute) +
+        ':' +
+        (second < 10 ? '0' + second : second);
+    second++;
+    if (second === 60) {
+        minute++;
+        second = 0;
+    }
+    timeInterval = setInterval(() => {
+        startTimer(minute, second);
+    }, 1000);
+}
+
+let value = '00:00';
+
+function pauseTimer() {
+    value = timer.textContent;
+    clearTimeout(timeInterval);
+}
+
+function resumeTimer() {
+    let t = value.split(":");
+    startTimer(parseInt(t[0], 10), parseInt(t[1], 10));
+}
+
+function pauseMenu(isOn) {
+    if (isOn) {
+        pauseButton.style.display = "block";
+        startButton.style.display = "block";
+        resumeButton.style.display = "block";
+    }
+    if (!isOn) {
+        pauseButton.style.display = "none";
+        startButton.style.display = "none";
+        resumeButton.style.display = "none";
+    }
+}
+
 function onPaddle() {
-    ball.style.top = (paddle.offsetTop - 19) + 'px';
-    ball.style.left = (paddle.offsetLeft + 40) + 'px';
+    ball.style.top = (paddle.offsetTop - 20) + 'px';
+    ball.style.left = (paddle.offsetLeft + 45) + 'px';
     ball.OnPaddle = true;
 }
 
 function scoreUpdater() {
     document.querySelector('.score').textContent = player.score;
-    document.querySelector('.lives').textContent = player.lives;
 }
 
 function setUpBricks(num) {
     let row = {
-        x: ((conDimensions.width % 100) / 2),
-        y: 50,
+        x: ((conDimensions.width % 60) / 2),
+        y: 35,
     }
     let skip = false;
-    let color = randomColor();
     for (let x = 0; x < num; x++) {
-        if (row.x > (conDimensions.width - 100)) {
-            row.y += 50;
-            color = randomColor();
+        if (row.x > (conDimensions.width - 60)) {
+            row.y += 35;
+
             if (row.y > conDimensions.height / 2) {
                 skip = true;
             }
-            row.x = ((conDimensions.width % 100) / 2);
+            row.x = ((conDimensions.width % 60) / 2);
         }
         row.count = x + 1;
         if (!skip) {
-            createBrick(row, color);
+            createBrick(row);
         }
-        row.x += 100;
+        row.x += 60;
     }
 }
 
-function createBrick(position, color) {
+let colors = ['red', 'yellow', 'orange', 'blue', 'pink', 'magenta', 'lightblue', 'green'];
+
+function createBrick(position) {
+    let color = colors[Math.floor(Math.random() * colors.length)];
     const div = document.createElement('div');
-    div.setAttribute('class', 'brick');
-    div.style.backgroundImage = `linear-gradient(to bottom right, ${color}, white)`;
+    div.setAttribute('class', `brick ${color}`);
     div.style.left = position.x + 'px';
     div.style.top = position.y + 'px';
     container.appendChild(div);
-}
-
-function randomColor() {
-    return "hsl(" + 360 * Math.random() + ',100%,50%)';
 }
 
 function moveBall() {
@@ -150,7 +231,7 @@ function moveBall() {
         y: ball.offsetTop,
     }
     if ((ballPosition.y > conDimensions.height - 20) || ballPosition.y < 0) {
-        if (ballPosition.y > conDimensions.height - 20) {
+        if (ballPosition.y  > conDimensions.height - 30) {
             fallOff();
         } else player.ballDir[1] *= -1;
     }
@@ -197,6 +278,7 @@ function isCollide(a, b) {
 
 function fallOff() {
     player.lives--;
+    livesContainer.removeChild(livesContainer.lastChild);
     if (player.lives < 1) {
         endGame();
         player.lives = 0;
@@ -206,9 +288,16 @@ function fallOff() {
 }
 
 function endGame() {
-    gameOver.style.display = "block";
-    gameOver.innerHTML = "Game over <br> Your score: " + player.score;
+    let gameOver = document.createElement('div');
+    gameOver.setAttribute('class', "gameOver");
+    container.appendChild(gameOver);
+    let score = document.createElement('div');
+    score.classList.add('finalScore');
+    score.innerHTML = `Your score: ` + player.score +`<br>Time: ` + timer.textContent;
+    container.appendChild(score);
+    pauseTimer();
     player.gameover = true;
+    paddle.style.display = "none";
     ball.style.display = "none";
     let bricks = document.querySelectorAll('.brick');
     for (const brick of bricks) {

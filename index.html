@@ -4,13 +4,26 @@
     <meta charset="UTF-8">
     <title>Brick breaker</title>
     <link rel="stylesheet" href="style.css">
+    <link href="http://fonts.cdnfonts.com/css/thegoodmonolith" rel="stylesheet">
+    <style>
+        @import url('http://fonts.cdnfonts.com/css/thegoodmonolith');
+    </style>
 </head>
 <body>
+<div class="outerContainer">
 <div>
-    Score: <span class="score"></span>
-    Lives: <span class="lives"></span>
+    <div id="livesContainer"></div>
+    <div id="scoreContainer">
+    <div class="innerText">Score: </div> <div class="score">0</div>
+    <div class="innerText">Time: </div><div class="time">00:00</div>
+    </div>
 </div>
-<div class="container"></div>
+<div class="container">
+    <button type="button" class="start"></button>
+    <button type="button" class="pause"></button>
+    <button type="button" class="resume"></button>
+</div>
+</div>
 <script type="module">
     import {loadPage} from "./game.js";
     loadPage();
