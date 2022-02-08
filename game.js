@@ -108,17 +108,6 @@ function startGame() {
     }
 }
 
-let start = null;
-
-function step(timestamp) {
-    if (!start) start = timestamp;
-    const progress = timestamp - start;
-    container.style.transform = 'translateX(' + Math.min(progress / 10, 200) + 'px)';
-    if (progress < 2000) {
-        window.requestAnimationFrame(step);
-    }
-}
-
 function update() {
     let pCurrent = paddle.offsetLeft;
     let speed = conDimensions.width / 100;
