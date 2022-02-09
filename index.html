@@ -11,17 +11,21 @@
 </head>
 <body>
 <div class="outerContainer">
-<div>
+<div id="board">
     <div id="livesContainer"></div>
     <div id="scoreContainer">
     <div class="innerText">Score: </div> <div class="score">0</div>
+    </div>
+    <div id="timeContainer">
     <div class="innerText">Time: </div><div class="time">00:00</div>
     </div>
 </div>
 <div class="container">
+    <div class="gameOver"></div>
     <button type="button" class="start"></button>
     <button type="button" class="pause"></button>
     <button type="button" class="resume"></button>
+    <div class="finalScore"></div>
 </div>
 </div>
 <script type="module">

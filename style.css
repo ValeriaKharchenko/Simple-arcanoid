@@ -39,6 +39,7 @@
     background-position: -124px -396px;
     top: calc(30% - 28px);
     left: calc(50% - 125px);
+    display: none;
 }
 
 .pause {
@@ -76,11 +77,13 @@
 
 .finalScore {
     color: #000000;
+    padding: 5px;
     font-size: 3em;
     font-family: 'TheGoodMonolith', sans-serif;
     position: absolute;
     top: 50%;
     left: 35%;
+    display: none;
 }
 
 .lives {
@@ -90,18 +93,30 @@
     background-position: -36px -149px;
     display: inline-block;
 }
+#board {
+    margin-top: 10px;
+    width: 80%;
+    margin-left: 10%;
+    position: relative;
+}
 
 #livesContainer {
     display: inline-block;
     position: relative;
-    margin-left: 10%;
-    /*width: 80%;*/
+    width: 33%;
+    float: left;
+    min-height: 10px;
 }
 
 #scoreContainer {
     display: inline-block;
-    /*position: relative;*/
-    margin-left: 20%;
+    position: relative;
+    width: 33%;
+}
+#timeContainer {
+    display: inline-block;
+    position: relative;
+    width: 33%;
 }
 
 .brick {

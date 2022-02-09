@@ -2,6 +2,8 @@ let paddle;
 let pauseButton;
 let startButton;
 let resumeButton;
+let gameOver;
+let finalScore;
 let ball;
 let livesContainer;
 let conDimensions;
@@ -9,7 +11,7 @@ let container;
 const player = {
     gameover: true,
     score: 0,
-    lives: 0,
+    lives: 3,
     inPlay: false,
     bricks: 0,
     ballDir: [],
@@ -23,7 +25,7 @@ export const loadPage = () => {
     conDimensions = container.getBoundingClientRect();
 
     startButton = document.querySelector('.start');
-    startButton.addEventListener('click', ()=> {
+    startButton.addEventListener('click', () => {
         player.gameover = true;
         player.onPause = false;
         player.inPlay = false;
@@ -32,21 +34,22 @@ export const loadPage = () => {
         conDimensions = container.getBoundingClientRect();
 
         pauseMenu(false);
+        gameOver.style.display = "none";
+        finalScore.style.display = "none";
+        startButton.style.top = "calc(50% - 28px)";
+        paddle.style.left = "40%";
         let bricks = document.querySelectorAll('.brick');
         for (const brick of bricks) {
             brick.parentNode.removeChild(brick);
         }
+        player.lives = 3;
+        fillLives();
         startGame();
     });
     pauseButton = document.querySelector('.pause');
     resumeButton = document.querySelector('.resume');
-
-    livesContainer = document.getElementById('livesContainer');
-    for (let i = 1; i <= 3; i ++) {
-        let live = document.createElement('div');
-        live.classList.add('lives');
-        livesContainer.appendChild(live);
-    }
+    gameOver = document.querySelector('.gameOver');
+    finalScore = document.querySelector('.finalScore');
 
     ball = document.createElement('div');
     ball.classList.add('ball');
@@ -55,15 +58,13 @@ export const loadPage = () => {
     paddle = document.createElement('div');
     paddle.classList.add('paddle');
     container.appendChild(paddle);
-
     document.addEventListener('keydown', function (e) {
+        e.preventDefault();
         if (e.code === 'ArrowRight' && !player.onPause) paddle.right = true;
         if (e.code === 'ArrowLeft' && !player.onPause) paddle.left = true;
         if (e.code === 'Space' && !player.inPlay) {
-            console.log("inPl1");
             player.inPlay = true;
         } else if (e.code === 'Space' && player.inPlay) {
-            console.log("inPl2");
             player.onPause = !player.onPause;
             if (player.onPause) {
                 pauseTimer();
@@ -76,6 +77,7 @@ export const loadPage = () => {
         }
     })
     document.addEventListener('keyup', function (e) {
+        e.preventDefault();
         if (e.code === 'ArrowRight') paddle.right = false;
         if (e.code === 'ArrowLeft') paddle.left = false;
     })
@@ -84,6 +86,16 @@ export const loadPage = () => {
         pauseMenu(false);
         resumeTimer();
     });
+}
+
+function fillLives() {
+    livesContainer = document.getElementById('livesContainer');
+    livesContainer.innerHTML = "";
+    for (let i = 1; i <= player.lives; i++) {
+        let live = document.createElement('div');
+        live.classList.add('lives');
+        livesContainer.appendChild(live);
+    }
 }
 
 function startGame() {
@@ -220,7 +232,7 @@ function moveBall() {
         y: ball.offsetTop,
     }
     if ((ballPosition.y > conDimensions.height - 20) || ballPosition.y < 0) {
-        if (ballPosition.y  > conDimensions.height - 30) {
+        if (ballPosition.y > conDimensions.height - 30) {
             fallOff();
         } else player.ballDir[1] *= -1;
     }
@@ -234,7 +246,7 @@ function moveBall() {
     let bricks = document.querySelectorAll('.brick');
     if (bricks.length === 0 && !player.gameover) {
         player.lives++;
-        player.lives = Math.min(player.lives, 5);
+        player.lives = Math.min(player.lives, 3);
         player.level++;
         scoreUpdater();
         stopper();
@@ -277,13 +289,11 @@ function fallOff() {
 }
 
 function endGame() {
-    let gameOver = document.createElement('div');
-    gameOver.setAttribute('class', "gameOver");
-    container.appendChild(gameOver);
-    let score = document.createElement('div');
-    score.classList.add('finalScore');
-    score.innerHTML = `Your score: ` + player.score +`<br>Time: ` + timer.textContent;
-    container.appendChild(score);
+    gameOver.style.display = "block";
+    startButton.style.display = "block";
+    startButton.style.top = "calc(40% - 28px)";
+    finalScore.style.display = "block";
+    finalScore.innerHTML = `Your score: ` + player.score + `<br>Time: ` + timer.textContent;
     pauseTimer();
     player.gameover = true;
     paddle.style.display = "none";
